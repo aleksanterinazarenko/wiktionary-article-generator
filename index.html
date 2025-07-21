@@ -405,7 +405,9 @@ const manualEtymology = document.getElementById('manual_etymology').value.trim()
       etymologyParts.push(manualEtymology);
     }
 
-const etymology = etymologyParts.length > 0 ? etymologyParts.join('. ') + '.' : '{{rfe|myv}}';
+const etymology = etymologyParts.length > 0 
+  ? etymologyParts.join('. ') + (manualEtymology ? '' : '.')
+  : '{{rfe|myv}}';
 
 const includePron = document.getElementById('include_pronunciation').checked;
 const ipaPronunciation = document.getElementById('ipa_pronunciation').value.trim();
