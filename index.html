@@ -107,6 +107,29 @@
       margin-top: 10px;
     }
 
+    #ipa-symbols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ipa-symbol-btn {
+  padding: 5px 10px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  flex: 1 0 10%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.ipa-symbol-btn:hover {
+  background-color: #f9f9f9;
+}
+
 @media (max-width: 600px) {
       body {
         padding: 5px;
@@ -186,12 +209,6 @@
   <label for="include_uncertain_etymology">
     <input type="checkbox" id="include_uncertain_etymology" /> Uncertain
   </label>
-  <label for="include_possible_etymology_inh1">
-    <input type="checkbox" id="include_possible_etymology_inh1" /> Possible 1
-  </label>
-  <label for="include_possible_etymology_inh2">
-    <input type="checkbox" id="include_possible_etymology_inh2" /> Possible 2
-  </label>
 </div>
 
       <label>Inherited 1:</label>
@@ -247,6 +264,33 @@
     <label for="ipa_pronunciation">Pronunciation (IPA format):</label>
     <input type="text" id="ipa_pronunciation" placeholder="Enter IPA pronunciation" />
     <small>e.g., vandɪ</small>
+
+    <div id="ipa-symbols">
+    <button type="button" class="ipa-symbol-btn">nʲ</button>
+    <button type="button" class="ipa-symbol-btn">ɲ</button>
+    <button type="button" class="ipa-symbol-btn">ŋ</button>
+    <button type="button" class="ipa-symbol-btn">tʲ</button>
+    <button type="button" class="ipa-symbol-btn">c</button>
+    <button type="button" class="ipa-symbol-btn">dʲ</button>
+    <button type="button" class="ipa-symbol-btn">ɟ</button>
+    <button type="button" class="ipa-symbol-btn">ɡ</button>
+    <button type="button" class="ipa-symbol-btn">t͡s</button>
+    <button type="button" class="ipa-symbol-btn">t͡sʲ</button>
+    <button type="button" class="ipa-symbol-btn">t͡ʃ</button>
+    <button type="button" class="ipa-symbol-btn">t͡ʂ</button>
+    <button type="button" class="ipa-symbol-btn">t͡ɕ</button>
+    <button type="button" class="ipa-symbol-btn">sʲ</button>
+    <button type="button" class="ipa-symbol-btn">ʃ</button>
+    <button type="button" class="ipa-symbol-btn">ʂ</button>
+    <button type="button" class="ipa-symbol-btn">zʲ</button>
+    <button type="button" class="ipa-symbol-btn">ʒ</button>
+    <button type="button" class="ipa-symbol-btn">rʲ</button>
+    <button type="button" class="ipa-symbol-btn">lʲ</button>
+    <button type="button" class="ipa-symbol-btn">u̯</button>
+    <button type="button" class="ipa-symbol-btn">ɛ</button>
+    <button type="button" class="ipa-symbol-btn">ɨ</button>
+    <button type="button" class="ipa-symbol-btn">æ</button>
+    </div>
   </div>
 </div>
 
@@ -347,41 +391,17 @@
     }
   }
 
-  function formatCognate(lang, word, meaning) {
-  if (!lang || !word) return '';
-  let result = `{{cog|${lang}|${word}`;
-  if (meaning) result += `||${meaning}`;
-  result += '}}';
-  return result;
-}
-
-      function formatTemplate(template, lang, word, meaning, addStar = false, useMyv = true) {
-  if (!lang && !word) return '';
-
-  const langPrefix = useMyv ? 'myv' : lang;
-
-  const words = (word || '').split(',').map(w => w.trim()).filter(Boolean);
-  if (words.length > 1) {
-    const first = words[0];
-    const second = words[1];
-
-    const firstFormatted = addStar ? `*${first}` : first;
-    const secondFormatted = addStar ? `*${second}` : second;
-
-    const part1 = `{{${template}|${langPrefix}|${lang}|${firstFormatted}${meaning ? `||${meaning}` : ''}}}`;
-    const part2 = `{{m|${lang}|${secondFormatted}}}`;
-    return `${part1} ~ ${part2}`;
-  }
-
-  let result = `{{${template}|${langPrefix}|${lang || ''}`;
-  if (word) {
-    const wordFormatted = addStar ? `*${word}` : word;
-    result += `|${wordFormatted}`;
-    if (meaning) result += `||${meaning}`;
-  }
-  result += '}}';
-  return result;
-}
+      function formatTemplate(template, lang, word, meaning, addStar = false) {
+        if (!lang && !word) return '';
+        let result = `{{${template}|myv|${lang || ''}`;
+        if (word) {
+          const wordFormatted = addStar ? `*${word}` : word;
+          result += `|${wordFormatted}`;
+          if (meaning) result += `||${meaning}`;
+        }
+        result += '}}';
+        return result;
+      }
 
       const inh1 = formatTemplate('inh',
   document.getElementById('inh1_lang').value,
@@ -406,15 +426,13 @@ cognateGroups.forEach(group => {
   const meaning = group.querySelector('.cog_meaning').value.trim();
 
   if (lang || word) {
-    const cog = formatCognate(lang, word, meaning);
+    const cog = formatTemplate('cog', lang, word, meaning);
     if (cog) cognates.push(cog);
   }
 });
 
 const includeUnknown = document.getElementById('include_unknown_etymology').checked;
 const includeUncertain = document.getElementById('include_uncertain_etymology').checked;
-const includePossible1 = document.getElementById('include_possible_etymology_inh1').checked;
-const includePossible2 = document.getElementById('include_possible_etymology_inh2').checked;
 let etymologyParts = [];
 
 if (includeUnknown) {
@@ -424,21 +442,10 @@ if (includeUncertain) {
   etymologyParts.push('{{unc|myv}}');
 }
 if (inh1 && inh2) {
-  let part;
-  if (includePossible1 && includePossible2) {
-    part = `Possibly from ${inh1}, possibly inherited from ${inh2}`;
-  } else if (includePossible1) {
-    part = `Possibly from ${inh1}, inherited from ${inh2}`;
-  } else if (includePossible2) {
-    part = `From ${inh1}, possibly inherited from ${inh2}`;
-  } else {
-    part = `From ${inh1}, inherited from ${inh2}`;
-  }
-  etymologyParts.push(part);
-} else if (inh1) {
-  etymologyParts.push(includePossible1 ? `Possibly from ${inh1}` : `From ${inh1}`);
-} else if (inh2) {
-  etymologyParts.push(includePossible2 ? `Possibly inherited from ${inh2}` : `inherited from ${inh2}`);
+  etymologyParts.push(`From ${inh1}, inherited from ${inh2}`);
+} else {
+  if (inh1) etymologyParts.push(`From ${inh1}`);
+  if (inh2) etymologyParts.push(`inherited from ${inh2}`);
 }
 
 if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
@@ -593,6 +600,15 @@ document.getElementById('add-meaning-btn').addEventListener('click', () => {
   const template = document.getElementById('meaning-template');
   const clone = template.content.cloneNode(true);
   document.getElementById('meanings-wrapper').appendChild(clone);
+});
+
+document.querySelectorAll('.ipa-symbol-btn').forEach(button => {
+  button.addEventListener('click', function() {
+    const ipaInput = document.getElementById('ipa_pronunciation');
+    const symbol = this.textContent.trim();
+    ipaInput.value += symbol;
+    ipaInput.focus();
+  });
 });
   </script>
 </body>
