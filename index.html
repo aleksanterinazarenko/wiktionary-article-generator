@@ -46,6 +46,14 @@
       display: block;
     }
 
+    .etymology-group label[for="include_unknown_etymology"] {
+  display: inline-flex;
+  font-weight: normal;
+  margin-top: 0;
+  align-items: center;
+  gap: 6px;
+}
+
     .pronunciation-group label {
   display: inline-flex;
   font-weight: normal;
@@ -148,6 +156,10 @@
 
     <div class="etymology-group">
       <h3>Etymology</h3>
+
+      <label for="include_unknown_etymology">
+    <input type="checkbox" id="include_unknown_etymology" /> Unknown
+  </label>
 
       <label>Inherited 1</label>
       <input type="text" id="inh1_lang" placeholder="Language code" />
@@ -329,7 +341,12 @@ cognateGroups.forEach(group => {
   }
 });
 
+const includeUnknown = document.getElementById('include_unknown_etymology').checked;
 let etymologyParts = [];
+
+if (includeUnknown) {
+  etymologyParts.push('{{unk|myv}}');
+}
 if (inh1 && inh2) {
   etymologyParts.push(`From ${inh1}, inherited from ${inh2}`);
 } else {
