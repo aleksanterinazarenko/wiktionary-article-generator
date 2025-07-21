@@ -143,7 +143,7 @@
     <div style="margin-top:20px;">
       <label for="alternative_forms">Alternative forms:</label>
       <input type="text" id="alternative_forms" placeholder="Alternative forms (optional)" />
-      <small>Use commas to separate multiple forms</small>
+      <small>Use commas to separate multiple forms.</small>
     </div>
 
     <div class="etymology-group">
@@ -151,20 +151,29 @@
 
       <label>Inherited 1</label>
       <input type="text" id="inh1_lang" placeholder="Language code" />
+      <small>e.g., urj-mdv-pro</small>
       <input type="text" id="inh1_word" placeholder="Word" />
+      <small>e.g., śeľmə</small>
       <input type="text" id="inh1_meaning" placeholder="Meaning" />
+      <small>e.g., eye</small>
 
       <label>Inherited 2</label>
       <input type="text" id="inh2_lang" placeholder="Language code" />
+      <small>e.g., urj-pro</small>
       <input type="text" id="inh2_word" placeholder="Word" />
+      <small>e.g., śilmä</small>
       <input type="text" id="inh2_meaning" placeholder="Meaning" />
+      <small>e.g., eye</small>
 
       <label>Cognates</label>
 <div id="cognates-wrapper">
   <div class="cognate-group">
     <input type="text" class="cog_lang" placeholder="Language code" />
+    <small>e.g., fi</small>
     <input type="text" class="cog_word" placeholder="Word" />
+    <small>e.g., silmä</small>
     <input type="text" class="cog_meaning" placeholder="Meaning" />
+    <small>e.g., eye</small>
     <hr>
   </div>
 </div>
@@ -187,6 +196,7 @@
   <div style="margin-top: 10px;">
     <label for="ipa_pronunciation">Pronunciation (IPA format):</label>
     <input type="text" id="ipa_pronunciation" placeholder="Enter IPA pronunciation" />
+    <small>e.g., vandɪ</small>
   </div>
 </div>
 
@@ -205,10 +215,13 @@
 <div id="meanings-wrapper">
   <div class="meaning-group">
     <input type="text" class="meaning" placeholder="Meaning (required)" required />
-    <small>Use commas to separate multiple meanings</small>
+    <small>Use commas to separate multiple meanings.</small>
     <input type="text" class="synonyms" placeholder="Synonyms (optional)" />
+    <small>Use commas to separate multiple terms.</small>
     <input type="text" class="example" placeholder="Example sentence (optional)" />
+    <small>e.g., сельме валдо</small>
     <input type="text" class="translation" placeholder="English translation (optional)" />
+    <small>e.g., sight</small>
     <hr>
   </div>
 </div>
@@ -216,7 +229,6 @@
 <template id="meaning-template">
   <div class="meaning-group">
     <input type="text" class="meaning" placeholder="Meaning (required)" />
-    <small>Use commas to separate multiple meanings</small>
     <input type="text" class="synonyms" placeholder="Synonyms (optional)" />
     <input type="text" class="example" placeholder="Example sentence (optional)" />
     <input type="text" class="translation" placeholder="English translation (optional)" />
@@ -231,7 +243,8 @@
   <label><input type="checkbox" id="include_declension" checked> Include declension section</label>
   <div style="margin-top: 10px;">
     <label for="declension">Declension template:</label>
-    <input type="text" id="declension" placeholder="Declension template, e.g., myv-noun-1 (optional)" />
+    <input type="text" id="declension" placeholder="Declension template (optional)" />
+    <small>e.g., myv-noun-1</small>
   </div>
 </div>
 
