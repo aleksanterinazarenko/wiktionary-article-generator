@@ -260,6 +260,8 @@
   <div class="meaning-group">
     <input type="text" class="meaning" placeholder="Meaning (required)" required />
     <small>Use commas to separate multiple meanings.</small>
+    <input type="text" class="label" placeholder="Label (optional)" />
+    <small>e.g., dated, dialectal</small>
     <input type="text" class="synonyms" placeholder="Synonyms (optional)" />
     <small>Use commas to separate multiple terms.</small>
     <input type="text" class="example" placeholder="Example sentence (optional)" />
@@ -273,6 +275,7 @@
 <template id="meaning-template">
   <div class="meaning-group">
     <input type="text" class="meaning" placeholder="Meaning (required)" />
+    <input type="text" class="label" placeholder="Label (optional)" />
     <input type="text" class="synonyms" placeholder="Synonyms (optional)" />
     <input type="text" class="example" placeholder="Example sentence (optional)" />
     <input type="text" class="translation" placeholder="English translation (optional)" />
@@ -444,6 +447,7 @@ let meaningLines = [];
 
 meaningGroups.forEach(group => {
   const meaningInput = group.querySelector('.meaning');
+  const labelInput = group.querySelector('.label');
   const exampleInput = group.querySelector('.example');
   const translationInput = group.querySelector('.translation');
   const synonymInput = group.querySelector('.synonyms');
@@ -453,6 +457,14 @@ meaningGroups.forEach(group => {
 
   const meanings = meaningText.split(',').map(m => m.trim()).filter(Boolean);
   const formattedMeanings = meanings.map(m => `[[${m}]]`);
+
+  const labelText = labelInput.value.trim();
+  if (labelText) {
+    formattedMeanings.forEach((meaning, index) => {
+      formattedMeanings[index] = `{{lb|myv|${labelText}}} ${meaning}`;
+    });
+  }
+
   meaningLines.push(`# ${prefix}${formattedMeanings.join(', ')}`);
 
   const example = exampleInput.value.trim();
