@@ -186,8 +186,11 @@
   <label for="include_uncertain_etymology">
     <input type="checkbox" id="include_uncertain_etymology" /> Uncertain
   </label>
-  <label for="include_possible_etymology">
-    <input type="checkbox" id="include_possible_etymology" /> Possible
+  <label for="include_possible_etymology_inh1">
+    <input type="checkbox" id="include_possible_etymology_inh1" /> Possible 1
+  </label>
+  <label for="include_possible_etymology_inh2">
+    <input type="checkbox" id="include_possible_etymology_inh2" /> Possible 2
   </label>
 </div>
 
@@ -386,7 +389,8 @@ cognateGroups.forEach(group => {
 
 const includeUnknown = document.getElementById('include_unknown_etymology').checked;
 const includeUncertain = document.getElementById('include_uncertain_etymology').checked;
-const includePossible = document.getElementById('include_possible_etymology').checked;
+const includePossible1 = document.getElementById('include_possible_etymology_inh1').checked;
+const includePossible2 = document.getElementById('include_possible_etymology_inh2').checked;
 let etymologyParts = [];
 
 if (includeUnknown) {
@@ -396,15 +400,21 @@ if (includeUncertain) {
   etymologyParts.push('{{unc|myv}}');
 }
 if (inh1 && inh2) {
-  if (includePossible) {
-    etymologyParts.push(`Possibly from ${inh1}, inherited from ${inh2}`);
+  let part;
+  if (includePossible1 && includePossible2) {
+    part = `Possibly from ${inh1}, possibly inherited from ${inh2}`;
+  } else if (includePossible1) {
+    part = `Possibly from ${inh1}, inherited from ${inh2}`;
+  } else if (includePossible2) {
+    part = `From ${inh1}, possibly inherited from ${inh2}`;
   } else {
-    etymologyParts.push(`From ${inh1}, inherited from ${inh2}`);
+    part = `From ${inh1}, inherited from ${inh2}`;
   }
+  etymologyParts.push(part);
 } else if (inh1) {
-  etymologyParts.push(includePossible ? `Possibly from ${inh1}` : `From ${inh1}`);
+  etymologyParts.push(includePossible1 ? `Possibly from ${inh1}` : `From ${inh1}`);
 } else if (inh2) {
-  etymologyParts.push(includePossible ? `Possibly inherited from ${inh2}` : `inherited from ${inh2}`);
+  etymologyParts.push(includePossible2 ? `Possibly inherited from ${inh2}` : `inherited from ${inh2}`);
 }
 
 if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
