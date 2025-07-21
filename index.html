@@ -349,6 +349,20 @@
 
       function formatTemplate(template, lang, word, meaning, addStar = false) {
         if (!lang && !word) return '';
+
+        const words = (word || '').split(',').map(w => w.trim()).filter(Boolean);
+  if (words.length > 1) {
+    const first = words[0];
+    const second = words[1];
+
+    const firstFormatted = addStar ? `*${first}` : first;
+    const secondFormatted = addStar ? `*${second}` : second;
+
+    const part1 = `{{${template}|myv|${lang}|${firstFormatted}${meaning ? `||${meaning}` : ''}}}`;
+    const part2 = `{{m|${lang}|${secondFormatted}}}`;
+    return `${part1} ~ ${part2}`;
+  }
+
         let result = `{{${template}|myv|${lang || ''}`;
         if (word) {
           const wordFormatted = addStar ? `*${word}` : word;
