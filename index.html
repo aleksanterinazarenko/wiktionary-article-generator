@@ -209,6 +209,12 @@
   <label for="include_uncertain_etymology">
     <input type="checkbox" id="include_uncertain_etymology" /> Uncertain
   </label>
+  <label for="include_possible_etymology_inh1">
+    <input type="checkbox" id="include_possible_etymology_inh1" /> Possible 1
+  </label>
+  <label for="include_possible_etymology_inh2">
+    <input type="checkbox" id="include_possible_etymology_inh2" /> Possible 2
+  </label>
 </div>
 
       <label>Inherited 1:</label>
@@ -265,7 +271,7 @@
     <input type="text" id="ipa_pronunciation" placeholder="Enter IPA pronunciation" />
     <small>e.g., vandɪ</small>
 
-    <div id="ipa-symbols">
+<div id="ipa-symbols">
     <button type="button" class="ipa-symbol-btn">nʲ</button>
     <button type="button" class="ipa-symbol-btn">ɲ</button>
     <button type="button" class="ipa-symbol-btn">ŋ</button>
@@ -391,17 +397,41 @@
     }
   }
 
-      function formatTemplate(template, lang, word, meaning, addStar = false) {
-        if (!lang && !word) return '';
-        let result = `{{${template}|myv|${lang || ''}`;
-        if (word) {
-          const wordFormatted = addStar ? `*${word}` : word;
-          result += `|${wordFormatted}`;
-          if (meaning) result += `||${meaning}`;
-        }
-        result += '}}';
-        return result;
-      }
+      function formatTemplate(template, lang, word, meaning, addStar = false, useMyv = true) {
+  if (!lang && !word) return '';
+
+  const langPrefix = useMyv ? 'myv' : lang;
+
+  const words = (word || '').split(',').map(w => w.trim()).filter(Boolean);
+  if (words.length > 1) {
+    const first = words[0];
+    const second = words[1];
+
+    const firstFormatted = addStar ? `*${first}` : first;
+    const secondFormatted = addStar ? `*${second}` : second;
+
+    const part1 = `{{${template}|${langPrefix}|${lang}|${firstFormatted}${meaning ? `||${meaning}` : ''}}}`;
+    const part2 = `{{m|${lang}|${secondFormatted}}}`;
+    return `${part1} ~ ${part2}`;
+  }
+
+  let result = `{{${template}|${langPrefix}|${lang || ''}`;
+  if (word) {
+    const wordFormatted = addStar ? `*${word}` : word;
+    result += `|${wordFormatted}`;
+    if (meaning) result += `||${meaning}`;
+  }
+  result += '}}';
+  return result;
+}
+
+function formatCognate(lang, word, meaning) {
+  if (!lang || !word) return '';
+  let result = `{{cog|${lang}|${word}`;
+  if (meaning) result += `||${meaning}`;
+  result += '}}';
+  return result;
+}
 
       const inh1 = formatTemplate('inh',
   document.getElementById('inh1_lang').value,
@@ -426,13 +456,15 @@ cognateGroups.forEach(group => {
   const meaning = group.querySelector('.cog_meaning').value.trim();
 
   if (lang || word) {
-    const cog = formatTemplate('cog', lang, word, meaning);
+    const cog = formatCognate(lang, word, meaning);
     if (cog) cognates.push(cog);
   }
 });
 
 const includeUnknown = document.getElementById('include_unknown_etymology').checked;
 const includeUncertain = document.getElementById('include_uncertain_etymology').checked;
+const includePossible1 = document.getElementById('include_possible_etymology_inh1').checked;
+const includePossible2 = document.getElementById('include_possible_etymology_inh2').checked;
 let etymologyParts = [];
 
 if (includeUnknown) {
@@ -442,10 +474,21 @@ if (includeUncertain) {
   etymologyParts.push('{{unc|myv}}');
 }
 if (inh1 && inh2) {
-  etymologyParts.push(`From ${inh1}, inherited from ${inh2}`);
-} else {
-  if (inh1) etymologyParts.push(`From ${inh1}`);
-  if (inh2) etymologyParts.push(`inherited from ${inh2}`);
+  let part;
+  if (includePossible1 && includePossible2) {
+    part = `Possibly from ${inh1}, possibly inherited from ${inh2}`;
+  } else if (includePossible1) {
+    part = `Possibly from ${inh1}, inherited from ${inh2}`;
+  } else if (includePossible2) {
+    part = `From ${inh1}, possibly inherited from ${inh2}`;
+  } else {
+    part = `From ${inh1}, inherited from ${inh2}`;
+  }
+  etymologyParts.push(part);
+} else if (inh1) {
+  etymologyParts.push(includePossible1 ? `Possibly from ${inh1}` : `From ${inh1}`);
+} else if (inh2) {
+  etymologyParts.push(includePossible2 ? `Possibly inherited from ${inh2}` : `inherited from ${inh2}`);
 }
 
 if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
