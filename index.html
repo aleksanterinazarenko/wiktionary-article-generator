@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wiktionary Article Generator</title>
   <style>
     body {
@@ -75,6 +76,59 @@
   box-sizing: border-box;
   margin-top: 4px;
 }
+
+@media (max-width: 600px) {
+      body {
+        padding: 5px;
+      }
+
+      .container {
+        padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 20px;
+      }
+
+      input, select, button {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      label {
+        font-size: 14px;
+      }
+
+      .output {
+        font-size: 14px;
+      }
+
+      .meaning-group input, .cognate-group input {
+        font-size: 14px;
+      }
+
+      .references-group textarea {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      input, select, button {
+        font-size: 12px;
+        padding: 8px;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      label {
+        font-size: 12px;
+      }
+
+      .output {
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 <body>
