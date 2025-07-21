@@ -460,8 +460,10 @@ meaningGroups.forEach(group => {
 
   const labelText = labelInput.value.trim();
   if (labelText) {
+    const labels = labelText.split(',').map(l => l.trim()).filter(Boolean);
+    const labelFormatted = `{{lb|myv|${labels.join('|')}}}`;
     formattedMeanings.forEach((meaning, index) => {
-      formattedMeanings[index] = `{{lb|myv|${labelText}}} ${meaning}`;
+      formattedMeanings[index] = `${labelFormatted} ${meaning}`;
     });
   }
 
