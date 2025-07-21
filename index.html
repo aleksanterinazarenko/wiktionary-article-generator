@@ -54,6 +54,13 @@
   gap: 6px;
 }
 
+.checkbox-group label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
     .pronunciation-group label {
   display: inline-flex;
   font-weight: bold;
@@ -84,6 +91,14 @@
   box-sizing: border-box;
   margin-top: 4px;
 }
+
+.manual-input {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding: 8px;
+      margin-top: 10px;
+    }
 
 @media (max-width: 600px) {
       body {
@@ -157,9 +172,14 @@
     <div class="etymology-group">
       <h3>Etymology</h3>
 
-      <label for="include_unknown_etymology">
+      <div class="checkbox-group">
+  <label for="include_unknown_etymology">
     <input type="checkbox" id="include_unknown_etymology" /> Unknown
   </label>
+  <label for="include_uncertain_etymology">
+    <input type="checkbox" id="include_uncertain_etymology" /> Uncertain
+  </label>
+</div>
 
       <label>Inherited 1:</label>
       <input type="text" id="inh1_lang" placeholder="Language code" />
@@ -200,6 +220,11 @@
 </template>
 
 <button type="button" id="add-cognate-btn">+ Add cognate</button>
+
+<div class="manual-etymology">
+  <label for="manual">Manual Etymology:</label>
+  <textarea id="manual_etymology" class="manual-input" placeholder="Enter custom etymology text here..."></textarea>
+</div>
     </div>
 
     <div class="pronunciation-group">
@@ -270,6 +295,11 @@
   <label for="references">References:</label>
   <textarea id="references" placeholder="R:myv:Serebrennikov:1993|+&#10;R:Uralonet|1" rows="4" style="width: 100%; font-family: monospace; font-size: 16px; padding: 8px; box-sizing: border-box;"></textarea>
   <small>e.g., R:myv:Serebrennikov:1993|+, R:Uralonet|1</small>
+
+  <div class="manual-references">
+  <label for="manual">Manual References:</label>
+  <textarea id="manual_references" class="manual-input" placeholder="Enter custom references here..."></textarea>
+</div>
 </div>
 
     <button onclick="generateArticle()">Generate</button>
@@ -342,10 +372,14 @@ cognateGroups.forEach(group => {
 });
 
 const includeUnknown = document.getElementById('include_unknown_etymology').checked;
+const includeUncertain = document.getElementById('include_uncertain_etymology').checked;
 let etymologyParts = [];
 
 if (includeUnknown) {
   etymologyParts.push('{{unk|myv}}');
+}
+if (includeUncertain) {
+  etymologyParts.push('{{unc|myv}}');
 }
 if (inh1 && inh2) {
   etymologyParts.push(`From ${inh1}, inherited from ${inh2}`);
@@ -355,6 +389,11 @@ if (inh1 && inh2) {
 }
 
 if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
+
+const manualEtymology = document.getElementById('manual_etymology').value.trim();
+    if (manualEtymology) {
+      etymologyParts.push(manualEtymology);
+    }
 
 const etymology = etymologyParts.length > 0 ? etymologyParts.join('. ') + '.' : '{{rfe|myv}}';
 
@@ -453,24 +492,27 @@ if (derivedTermsRaw) {
 }
 
 const presetReferences = [
-  'R:myv:Serebrennikov:1993|+',
+  'rfref|myv',
 ];
 
-const referencesRaw = document.getElementById('references').value.trim();
-const refLines = referencesRaw ? referencesRaw.split('\n').map(line => line.trim()).filter(Boolean) : [];
+const manualReferencesRaw = document.getElementById('manual_references').value.trim();
+  const manualRefLines = manualReferencesRaw ? manualReferencesRaw.split('\n').map(line => line.trim()).filter(Boolean) : [];
 
-const allReferences = refLines.length > 0 ? refLines : presetReferences;
+  const referencesRaw = document.getElementById('references').value.trim();
+  const refLines = referencesRaw ? referencesRaw.split('\n').map(line => line.trim()).filter(Boolean) : [];
 
-if (allReferences.length > 0) {
-  output += `\n\n===References===`;
-  allReferences.forEach(ref => {
-    if (ref.startsWith('{{') && ref.endsWith('}}')) {
-      output += `\n* ${ref}`;
-    } else {
-      output += `\n* {{${ref}}}`;
-    }
-  });
-}
+  const allReferences = manualRefLines.length > 0 ? manualRefLines : (refLines.length > 0 ? refLines : presetReferences);
+
+  if (allReferences.length > 0) {
+    output += `\n\n===References===`;
+    allReferences.forEach(ref => {
+      if (manualRefLines.includes(ref)) {
+        output += `\n* ${ref}`;
+      } else {
+        output += `\n* {{${ref}}}`;
+      }
+    });
+  }
 
 document.getElementById('output').textContent = output;
 }
