@@ -215,9 +215,12 @@
   <label for="include_possible_etymology_inh2">
     <input type="checkbox" id="include_possible_etymology_inh2" /> Possible 2
   </label>
+  <label for="inh2_is_borrowed">
+  <input type="checkbox" id="inh2_is_borrowed" /> Borrowed
+</label>
 </div>
 
-      <label>Inherited 1:</label>
+      <label id="inh1_label">Inherited 1:</label>
       <input type="text" id="inh1_lang" placeholder="Language code" />
       <small>e.g., urj-mdv-pro</small>
       <input type="text" id="inh1_word" placeholder="Word" />
@@ -225,7 +228,7 @@
       <input type="text" id="inh1_meaning" placeholder="Meaning" />
       <small>e.g., eye</small>
 
-      <label>Inherited 2:</label>
+      <label id="inh2_label">Inherited 2:</label>
       <input type="text" id="inh2_lang" placeholder="Language code" />
       <small>e.g., urj-pro</small>
       <input type="text" id="inh2_word" placeholder="Word" />
@@ -440,11 +443,14 @@ function formatCognate(lang, word, meaning) {
   true
 );
 
-const inh2 = formatTemplate('inh',
+const inh2IsBorrowed = document.getElementById('inh2_is_borrowed').checked;
+const inh2Template = inh2IsBorrowed ? 'bor' : 'inh';
+
+const inh2 = formatTemplate(inh2Template,
   document.getElementById('inh2_lang').value,
   document.getElementById('inh2_word').value,
   document.getElementById('inh2_meaning').value,
-  true
+  !inh2IsBorrowed
 );
 
 const cognateGroups = document.querySelectorAll('.cognate-group');
@@ -474,21 +480,24 @@ if (includeUncertain) {
   etymologyParts.push('{{unc|myv}}');
 }
 if (inh1 && inh2) {
+  const verb2 = inh2IsBorrowed ? 'borrowed' : 'inherited';
   let part;
   if (includePossible1 && includePossible2) {
-    part = `Possibly from ${inh1}, possibly inherited from ${inh2}`;
+    part = `Possibly from ${inh1}, possibly ${verb2} from ${inh2}`;
   } else if (includePossible1) {
-    part = `Possibly from ${inh1}, inherited from ${inh2}`;
+    part = `Possibly from ${inh1}, ${verb2} from ${inh2}`;
   } else if (includePossible2) {
-    part = `From ${inh1}, possibly inherited from ${inh2}`;
+    part = `From ${inh1}, possibly ${verb2} from ${inh2}`;
   } else {
-    part = `From ${inh1}, inherited from ${inh2}`;
+    part = `From ${inh1}, ${verb2} from ${inh2}`;
   }
   etymologyParts.push(part);
 } else if (inh1) {
   etymologyParts.push(includePossible1 ? `Possibly from ${inh1}` : `From ${inh1}`);
 } else if (inh2) {
-  etymologyParts.push(includePossible2 ? `Possibly inherited from ${inh2}` : `Inherited from ${inh2}`);
+  const verb = inh2IsBorrowed ? 'Borrowed' : 'Inherited';
+  const possiblePrefix = includePossible2 ? 'Possibly ' : '';
+  etymologyParts.push(`${possiblePrefix}${verb} from ${inh2}`);
 }
 
 if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
@@ -658,6 +667,15 @@ document.querySelectorAll('.ipa-symbol-btn').forEach(button => {
     ipaInput.value += symbol;
     ipaInput.focus();
   });
+});
+
+document.getElementById('inh2_is_borrowed').addEventListener('change', function () {
+  const inh2Label = document.getElementById('inh2_label');
+  const inh1Label = document.getElementById('inh1_label');
+  const isChecked = this.checked;
+
+  inh2Label.textContent = isChecked ? 'Borrowed:' : 'Inherited 2:';
+  inh1Label.textContent = isChecked ? 'Inherited:' : 'Inherited 1:';
 });
   </script>
 </body>
