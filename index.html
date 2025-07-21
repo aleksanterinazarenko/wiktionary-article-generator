@@ -461,7 +461,7 @@ meaningGroups.forEach(group => {
   const word = meanings[0];
   const bolded = example.includes(word)
     ? example.replace(word, `${word}`)
-    : `'''${example}'''`;
+    : `${example}`;
   const uxi = translation
     ? `{{uxi|myv|${bolded}|${translation}}}`
     : `{{uxi|myv|${bolded}}}`;
