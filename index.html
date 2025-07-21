@@ -347,10 +347,20 @@
     }
   }
 
-      function formatTemplate(template, lang, word, meaning, addStar = false) {
-        if (!lang && !word) return '';
+  function formatCognate(lang, word, meaning) {
+  if (!lang || !word) return '';
+  let result = `{{cog|${lang}|${word}`;
+  if (meaning) result += `||${meaning}`;
+  result += '}}';
+  return result;
+}
 
-        const words = (word || '').split(',').map(w => w.trim()).filter(Boolean);
+      function formatTemplate(template, lang, word, meaning, addStar = false, useMyv = true) {
+  if (!lang && !word) return '';
+
+  const langPrefix = useMyv ? 'myv' : lang;
+
+  const words = (word || '').split(',').map(w => w.trim()).filter(Boolean);
   if (words.length > 1) {
     const first = words[0];
     const second = words[1];
@@ -358,20 +368,20 @@
     const firstFormatted = addStar ? `*${first}` : first;
     const secondFormatted = addStar ? `*${second}` : second;
 
-    const part1 = `{{${template}|myv|${lang}|${firstFormatted}${meaning ? `||${meaning}` : ''}}}`;
+    const part1 = `{{${template}|${langPrefix}|${lang}|${firstFormatted}${meaning ? `||${meaning}` : ''}}}`;
     const part2 = `{{m|${lang}|${secondFormatted}}}`;
     return `${part1} ~ ${part2}`;
   }
 
-        let result = `{{${template}|myv|${lang || ''}`;
-        if (word) {
-          const wordFormatted = addStar ? `*${word}` : word;
-          result += `|${wordFormatted}`;
-          if (meaning) result += `||${meaning}`;
-        }
-        result += '}}';
-        return result;
-      }
+  let result = `{{${template}|${langPrefix}|${lang || ''}`;
+  if (word) {
+    const wordFormatted = addStar ? `*${word}` : word;
+    result += `|${wordFormatted}`;
+    if (meaning) result += `||${meaning}`;
+  }
+  result += '}}';
+  return result;
+}
 
       const inh1 = formatTemplate('inh',
   document.getElementById('inh1_lang').value,
@@ -396,7 +406,7 @@ cognateGroups.forEach(group => {
   const meaning = group.querySelector('.cog_meaning').value.trim();
 
   if (lang || word) {
-    const cog = formatTemplate('cog', lang, word, meaning);
+    const cog = formatCognate(lang, word, meaning);
     if (cog) cognates.push(cog);
   }
 });
