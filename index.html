@@ -269,7 +269,7 @@
   <div style="margin-top: 10px;">
     <label for="ipa_pronunciation">Pronunciation (IPA format):</label>
     <input type="text" id="ipa_pronunciation" placeholder="Enter IPA pronunciation" />
-    <small>e.g., vandɪ</small>
+    <small>e.g., sʲelʲme</small>
 
 <div id="ipa-symbols">
     <button type="button" class="ipa-symbol-btn">nʲ</button>
@@ -508,10 +508,16 @@ const ipaPronunciation = document.getElementById('ipa_pronunciation').value.trim
 let pronunciationSection = '';
 if (includePron) {
   if (ipaPronunciation) {
-    pronunciationSection = `\n\n===Pronunciation===\n{{IPA|myv|/${ipaPronunciation}/}}`;
-  } else {
-    pronunciationSection = `\n\n===Pronunciation===\n{{rfp|myv}}`;
-  }
+  const ipaList = ipaPronunciation
+    .split(',')
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => `/${p}/`);
+
+  pronunciationSection = `\n\n===Pronunciation===\n{{IPA|myv|${ipaList.join('|')}}}`;
+} else {
+  pronunciationSection = `\n\n===Pronunciation===\n{{rfp|myv}}`;
+}
 }
 
 const includeDeclension = document.getElementById('include_declension').checked;
