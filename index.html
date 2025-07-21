@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wiktionary Article Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, select, button {
+      font-size: 16px;
+      padding: 8px;
+      margin-top: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .etymology-group, .pronunciation-group {
+      margin-top: 20px;
+    }
+
+    pre.output {
+      background: #eee;
+      padding: 10px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+      border-left: 4px solid #888;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    .pronunciation-group label {
+  display: inline-flex;
+  font-weight: normal;
+  margin-top: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.declension-group label {
+  display: inline-flex;
+  font-weight: normal;
+  margin-top: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.references-group label {
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
+}
+
+.references-group textarea {
+  font-family: monospace;
+  font-size: 16px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Wiktionary Article Generator</h2>
+
+    <label for="language">Choose a language:</label>
+    <select id="language">
+      <option value="Erzya">Erzya</option>
+    </select>
+
+    <div class="etymology-group">
+      <h3>Etymology</h3>
+
+      <label>Inherited 1</label>
+      <input type="text" id="inh1_lang" placeholder="Language code" />
+      <input type="text" id="inh1_word" placeholder="Word" />
+      <input type="text" id="inh1_meaning" placeholder="Meaning" />
+
+      <label>Inherited 2</label>
+      <input type="text" id="inh2_lang" placeholder="Language code" />
+      <input type="text" id="inh2_word" placeholder="Word" />
+      <input type="text" id="inh2_meaning" placeholder="Meaning" />
+
+      <label>Cognates</label>
+<div id="cognates-wrapper">
+  <div class="cognate-group">
+    <input type="text" class="cog_lang" placeholder="Language code" />
+    <input type="text" class="cog_word" placeholder="Word" />
+    <input type="text" class="cog_meaning" placeholder="Meaning" />
+    <hr>
+  </div>
+</div>
+
+<template id="cognate-template">
+  <div class="cognate-group">
+    <input type="text" class="cog_lang" placeholder="Language code" />
+    <input type="text" class="cog_word" placeholder="Word" />
+    <input type="text" class="cog_meaning" placeholder="Meaning" />
+    <hr>
+  </div>
+</template>
+
+<button type="button" id="add-cognate-btn">+ Add cognate</button>
+    </div>
+
+    <div class="pronunciation-group">
+      <h3>Pronunciation</h3>
+      <label><input type="checkbox" id="include_pronunciation" checked> Include pronunciation section</label>
+    </div>
+
+    <h3>Word</h3>
+
+    <label for="part_of_speech">Choose a part of speech:</label>
+<select id="part_of_speech">
+  <option value="noun">Noun</option>
+  <option value="verb">Verb</option>
+  <option value="adjective">Adjective</option>
+</select>
+
+<label>Meanings:</label>
+
+<div id="meanings-wrapper">
+  <div class="meaning-group">
+    <input type="text" class="meaning" placeholder="e.g., sun, sunlight" required />
+    <input type="text" class="synonyms" placeholder="Synonyms (optional)" />
+    <input type="text" class="example" placeholder="Example sentence (optional)" />
+    <input type="text" class="translation" placeholder="English translation (optional)" />
+    <hr>
+  </div>
+</div>
+
+<template id="meaning-template">
+  <div class="meaning-group">
+    <input type="text" class="meaning" placeholder="e.g., sun, sunlight" />
+    <input type="text" class="synonyms" placeholder="Synonyms (optional)" />
+    <input type="text" class="example" placeholder="Example sentence (optional)" />
+    <input type="text" class="translation" placeholder="English translation (optional)" />
+    <hr>
+  </div>
+</template>
+
+<button type="button" id="add-meaning-btn">+ Add meaning</button>
+
+<div class="declension-group" style="margin-top: 20px;">
+  <h3>Declension</h3>
+  <label><input type="checkbox" id="include_declension" checked> Include declension section</label>
+</div>
+
+<div style="margin-top:20px;">
+  <label for="derived_terms">Derived terms:</label>
+  <input type="text" id="derived_terms" placeholder="e.g., sun, sunlight" />
+</div>
+
+<div class="references-group" style="margin-top: 20px;">
+  <label for="references">References:</label>
+  <textarea id="references" placeholder="R:myv:Serebrennikov:1993|+&#10;R:Uralonet|1684" rows="4" style="width: 100%; font-family: monospace; font-size: 16px; padding: 8px; box-sizing: border-box;"></textarea>
+</div>
+
+    <button onclick="generateArticle()">Generate</button>
+
+    <pre id="output" class="output"></pre>
+  </div>
+
+  <script>
+    function generateArticle() {
+  const language = document.getElementById('language').value;
+  const pos = document.getElementById('part_of_speech').value;
+  const posCapitalized = pos.charAt(0).toUpperCase() + pos.slice(1);
+  const posSection = `\n\n===${posCapitalized}===\n{{head|myv|${pos}}}`;
+  const allMeaningInputs = document.querySelectorAll('.meaning');
+  const hasAtLeastOneMeaning = Array.from(allMeaningInputs).some(input => input.value.trim() !== '');
+
+  if (!hasAtLeastOneMeaning) {
+    alert('Please enter at least one meaning.');
+    return;
+  }
+
+      function formatTemplate(template, lang, word, meaning, addStar = false) {
+        if (!lang && !word) return '';
+        let result = `{{${template}|myv|${lang || ''}`;
+        if (word) {
+          const wordFormatted = addStar ? `*${word}` : word;
+          result += `|${wordFormatted}`;
+          if (meaning) result += `||${meaning}`;
+        }
+        result += '}}';
+        return result;
+      }
+
+      const inh1 = formatTemplate('inh',
+  document.getElementById('inh1_lang').value,
+  document.getElementById('inh1_word').value,
+  document.getElementById('inh1_meaning').value,
+  true
+);
+
+const inh2 = formatTemplate('inh',
+  document.getElementById('inh2_lang').value,
+  document.getElementById('inh2_word').value,
+  document.getElementById('inh2_meaning').value,
+  true
+);
+
+const cognateGroups = document.querySelectorAll('.cognate-group');
+const cognates = [];
+
+cognateGroups.forEach(group => {
+  const lang = group.querySelector('.cog_lang').value.trim();
+  const word = group.querySelector('.cog_word').value.trim();
+  const meaning = group.querySelector('.cog_meaning').value.trim();
+
+  if (lang || word) {
+    const cog = formatTemplate('cog', lang, word, meaning);
+    if (cog) cognates.push(cog);
+  }
+});
+
+let etymologyParts = [];
+if (inh1 && inh2) {
+  etymologyParts.push(`From ${inh1}, inherited from ${inh2}`);
+} else {
+  if (inh1) etymologyParts.push(`From ${inh1}`);
+  if (inh2) etymologyParts.push(`inherited from ${inh2}`);
+}
+
+if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
+
+const etymology = etymologyParts.length > 0 ? etymologyParts.join('. ') + '.' : '{{rfe|myv}}';
+
+      const includePron = document.getElementById('include_pronunciation').checked;
+const includeDeclension = document.getElementById('include_declension').checked;
+
+let output = `==${language}==\n\n===Etymology===\n${etymology}`;
+
+if (includePron) {
+  output += `\n\n===Pronunciation===\n{{rfp|myv}}`;
+}
+
+output += `\n\n===${posCapitalized}===\n{{head|myv|${pos}}}`;
+
+const meaningGroups = document.querySelectorAll('.meaning-group');
+const prefix = pos === 'verb' ? 'to ' : '';
+let meaningLines = [];
+
+meaningGroups.forEach(group => {
+  const meaningInput = group.querySelector('.meaning');
+  const exampleInput = group.querySelector('.example');
+  const translationInput = group.querySelector('.translation');
+  const synonymInput = group.querySelector('.synonyms');
+
+  const meaningText = meaningInput.value.trim();
+  if (!meaningText) return;
+
+  const meanings = meaningText.split(',').map(m => m.trim()).filter(Boolean);
+  const formattedMeanings = meanings.map(m => `[[${m}]]`);
+  meaningLines.push(`# ${prefix}${formattedMeanings.join(', ')}`);
+
+  const example = exampleInput.value.trim();
+  const translation = translationInput.value.trim();
+  if (example) {
+  const word = meanings[0];
+  const bolded = example.includes(word)
+    ? example.replace(word, `${word}`)
+    : `'''${example}'''`;
+  const uxi = translation
+    ? `{{uxi|myv|${bolded}|${translation}}}`
+    : `{{uxi|myv|${bolded}}}`;
+  meaningLines.push(`#: ${uxi}`);
+}
+
+  const synonyms = synonymInput.value.trim();
+  if (synonyms) {
+    const synList = synonyms.split(',').map(s => s.trim()).filter(Boolean);
+    if (synList.length > 0) {
+      meaningLines.push(`#: {{syn|myv|${synList.join('|')}}}`);
+    }
+  }
+});
+
+if (meaningLines.length > 0) {
+  output += '\n\n' + meaningLines.join('\n');
+}
+
+if (includeDeclension) {
+  output += `\n\n====Declension====\n{{rfinfl|myv}}`;
+}
+
+const derivedTermsRaw = document.getElementById('derived_terms').value.trim();
+if (derivedTermsRaw) {
+  const terms = derivedTermsRaw.split(',').map(t => t.trim()).filter(Boolean);
+  if (terms.length > 0) {
+    const derivedList = terms.map(t => `{{l|myv|${t}}}`).join(', ');
+    output += `\n\n====Derived terms====\n* ${derivedList}`;
+  }
+}
+
+const presetReferences = [
+  'R:myv:Serebrennikov:1993|+',
+];
+
+const referencesRaw = document.getElementById('references').value.trim();
+const refLines = referencesRaw ? referencesRaw.split('\n').map(line => line.trim()).filter(Boolean) : [];
+
+const allReferences = refLines.length > 0 ? refLines : presetReferences;
+
+if (allReferences.length > 0) {
+  output += `\n\n===References===`;
+  allReferences.forEach(ref => {
+    if (ref.startsWith('{{') && ref.endsWith('}}')) {
+      output += `\n* ${ref}`;
+    } else {
+      output += `\n* {{${ref}}}`;
+    }
+  });
+}
+
+document.getElementById('output').textContent = output;
+}
+
+document.getElementById('add-cognate-btn').addEventListener('click', () => {
+  const template = document.getElementById('cognate-template');
+  const clone = template.content.cloneNode(true);
+  document.getElementById('cognates-wrapper').appendChild(clone);
+});
+
+document.getElementById('add-meaning-btn').addEventListener('click', () => {
+  const template = document.getElementById('meaning-template');
+  const clone = template.content.cloneNode(true);
+  document.getElementById('meanings-wrapper').appendChild(clone);
+});
+  </script>
+</body>
+</html>
