@@ -76,7 +76,7 @@
   gap: 6px;
 }
 
-.declension-group label {
+.inflection-group label {
   display: inline-flex;
   font-weight: bold;
   margin-top: 0;
@@ -96,7 +96,7 @@
   padding: 8px;
   width: 100%;
   box-sizing: border-box;
-  margin-top: 4px;
+  margin-top: 10px;
 }
 
 .manual-input {
@@ -268,7 +268,7 @@
 
     <div class="pronunciation-group">
   <h3>Pronunciation</h3>
-  <label><input type="checkbox" id="include_pronunciation" checked> Include pronunciation section</label>
+  <label><input type="checkbox" id="include_pronunciation" checked>Include pronunciation section</label>
   <div style="margin-top: 10px;">
     <label for="ipa_pronunciation">Pronunciation (IPA format):</label>
     <input type="text" id="ipa_pronunciation" placeholder="Enter IPA pronunciation" />
@@ -344,12 +344,12 @@
 
 <button type="button" id="add-meaning-btn">+ Add meaning</button>
 
-<div class="declension-group" style="margin-top: 20px;">
-  <h3>Declension</h3>
-  <label><input type="checkbox" id="include_declension" checked> Include declension section</label>
+<div class="inflection-group" style="margin-top: 20px;">
+  <h3>Inflection</h3>
+  <label><input type="checkbox" id="include_inflection" checked>Include inflection section</label>
   <div style="margin-top: 10px;">
-    <label for="declension">Declension template:</label>
-    <input type="text" id="declension" placeholder="Declension template (optional)" />
+    <label for="inflection">Inflection template:</label>
+    <input type="text" id="inflection" placeholder="Inflection template (optional)" />
     <small>e.g., myv-noun-1</small>
   </div>
 </div>
@@ -480,24 +480,25 @@ if (includeUncertain) {
   etymologyParts.push('{{unc|myv}}');
 }
 if (inh1 && inh2) {
-  const verb2 = inh2IsBorrowed ? 'borrowed' : 'inherited';
+  const der2 = inh2IsBorrowed ? 'borrowed' : 'inherited';
   let part;
   if (includePossible1 && includePossible2) {
-    part = `Possibly from ${inh1}, possibly ${verb2} from ${inh2}`;
+    part = `Possibly from ${inh1}, possibly ${der2} from ${inh2}`;
   } else if (includePossible1) {
-    part = `Possibly from ${inh1}, ${verb2} from ${inh2}`;
+    part = `Possibly from ${inh1}, ${der2} from ${inh2}`;
   } else if (includePossible2) {
-    part = `From ${inh1}, possibly ${verb2} from ${inh2}`;
+    part = `From ${inh1}, possibly ${der2} from ${inh2}`;
   } else {
-    part = `From ${inh1}, ${verb2} from ${inh2}`;
+    part = `From ${inh1}, ${der2} from ${inh2}`;
   }
   etymologyParts.push(part);
 } else if (inh1) {
   etymologyParts.push(includePossible1 ? `Possibly from ${inh1}` : `From ${inh1}`);
 } else if (inh2) {
-  const verb = inh2IsBorrowed ? 'Borrowed' : 'Inherited';
+  const der = inh2IsBorrowed ? 'Borrowed' : 'Inherited';
   const possiblePrefix = includePossible2 ? 'Possibly ' : '';
-  etymologyParts.push(`${possiblePrefix}${verb} from ${inh2}`);
+  const derToUse = includePossible2 ? der.toLowerCase() : der;
+  etymologyParts.push(`${possiblePrefix}${derToUse} from ${inh2}`);
 }
 
 if (cognates.length > 0) etymologyParts.push(`Cognates include ${cognates.join(', ')}`);
@@ -529,12 +530,14 @@ if (includePron) {
 }
 }
 
-const includeDeclension = document.getElementById('include_declension').checked;
-const declension = document.getElementById('declension').value.trim();
+const includeInflection = document.getElementById('include_inflection').checked;
+const inflection = document.getElementById('inflection').value.trim();
 
-let declensionSection = '';
-if (includeDeclension && declension) {
-  declensionSection = `\n\n====Declension====\n{{${declension}}}`;
+let inflectionSection = '';
+let partOfSpeech = document.getElementById('part_of_speech').value;
+if (includeInflection && inflection) {
+  let sectionTitle = (partOfSpeech === 'verb') ? '====Conjugation====' : '====Declension====';
+  inflectionSection = `\n\n${sectionTitle}\n{{${inflection}}}`;
 }
 
 let output = `==${language}==\n\n`;
@@ -605,12 +608,13 @@ if (meaningLines.length > 0) {
   output += '\n\n' + meaningLines.join('\n');
 }
 
-if (includeDeclension) {
-  output += `\n\n====Declension====\n{{rfinfl|myv}}`;
+if (includeInflection && !inflectionSection) {
+  let sectionTitle = (partOfSpeech === 'verb') ? '====Conjugation====' : '====Declension====';
+  output += `\n\n${sectionTitle}\n{{rfinfl|myv}}`;
 }
 
-if (declensionSection) {
-  output += declensionSection;
+if (inflectionSection) {
+  output += inflectionSection;
 }
 
 const derivedTermsRaw = document.getElementById('derived_terms').value.trim();
