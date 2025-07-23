@@ -414,8 +414,8 @@
     const firstFormatted = addStar ? `*${first}` : first;
     const secondFormatted = addStar ? `*${second}` : second;
 
-    const part1 = `{{${template}|${langPrefix}|${lang}|${firstFormatted}${meaning ? `||${meaning}` : ''}}}`;
-    const part2 = `{{m|${lang}|${secondFormatted}}}`;
+    const part1 = `{{${template}|${langPrefix}|${lang}|${firstFormatted}}}`;
+    const part2 = `{{m|${lang}|${secondFormatted}${meaning ? `||${meaning}` : ''}}}`;
     return `${part1} ~ ${part2}`;
   }
 
